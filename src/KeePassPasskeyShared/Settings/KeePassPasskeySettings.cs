@@ -15,6 +15,9 @@ public class KeePassPasskeySettings
 	[JsonProperty("signInVerification")]
 	public UserVerificationMode SignInVerification { get; set; } = UserVerificationMode.Both;
 
+	[JsonProperty("skipWindowsHelloAfterUnlock")]
+	public bool SkipWindowsHelloAfterUnlock { get; set; }
+
 	[JsonProperty("useLegacyNotificationPrompts")]
 	public bool UseLegacyNotificationPrompts { get; set; }
 

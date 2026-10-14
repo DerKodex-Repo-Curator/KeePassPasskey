@@ -176,6 +176,16 @@
 										</ui:FASettingsExpanderItem.Content>
 								</ui:FASettingsExpanderItem>
 
+								<ui:FASettingsExpanderItem Content="Skip Windows Hello after unlocking KeePass"
+																				 Description="When KeePass was locked and you just unlocked it for this request, don't ask for Windows Hello again. Only applies while the confirmation prompt is on">
+										<ui:FASettingsExpanderItem.Footer>
+												<ToggleSwitch IsChecked="{Binding SkipWindowsHelloAfterUnlock}"
+																			OnContent="On"
+																			OffContent="Off"
+																			Margin="0 0 4 0" />
+										</ui:FASettingsExpanderItem.Footer>
+								</ui:FASettingsExpanderItem>
+
 						</ui:FASettingsExpander>
 
 						<ui:FASettingsExpander Header="Passkey Entries"

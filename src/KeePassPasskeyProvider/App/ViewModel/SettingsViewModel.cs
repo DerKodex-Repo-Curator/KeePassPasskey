@@ -25,6 +25,7 @@ public sealed partial class SettingsViewModel : ObservableObject
 	[NotifyPropertyChangedFor(nameof(SignInPrompt))]
 	[NotifyPropertyChangedFor(nameof(IsSignInSilent))]
 	public partial UserVerificationMode SignInVerification { get; set; }
+	[ObservableProperty] public partial bool SkipWindowsHelloAfterUnlock { get; set; }
 	[ObservableProperty] public partial bool UseLegacyNotificationPrompts { get; set; }
 	[ObservableProperty] public partial bool ShowErrorNotifications { get; set; }
 	[ObservableProperty] public partial bool AddPasskeyTag { get; set; }
@@ -238,6 +239,7 @@ public sealed partial class SettingsViewModel : ObservableObject
 	{
 		RegistrationVerification = RegistrationVerification,
 		SignInVerification = SignInVerification,
+		SkipWindowsHelloAfterUnlock = SkipWindowsHelloAfterUnlock,
 		UseLegacyNotificationPrompts = UseLegacyNotificationPrompts,
 		ShowErrorNotifications = ShowErrorNotifications,
 		AddPasskeyTag = AddPasskeyTag,
@@ -418,6 +420,7 @@ public sealed partial class SettingsViewModel : ObservableObject
 		_isLoading = true;
 		RegistrationVerification = c.RegistrationVerification;
 		SignInVerification = c.SignInVerification;
+		SkipWindowsHelloAfterUnlock = c.SkipWindowsHelloAfterUnlock;
 		UseLegacyNotificationPrompts = c.UseLegacyNotificationPrompts;
 		ShowErrorNotifications = c.ShowErrorNotifications;
 		AddPasskeyTag = c.AddPasskeyTag;

@@ -137,7 +137,7 @@ A KeePassPasskey dialog appears, showing the KeePass entry Windows picked. Click
 
 If a passkey is requested while your KeePass database is locked, KeePass comes to the front and asks you to unlock it, the same prompt its own unlock command shows. With a quick unlock plugin such as KeePassWinHello, that is its Windows Hello prompt. Once the database is open, the passkey operation continues and the focus returns to the window that asked for the passkey, usually your browser.
 
-Because unlocking KeePass has just verified you, KeePassPasskey skips its own Windows Hello step for this request, as long as the confirmation prompt is turned on. With Windows Hello as the only verification, it is kept, since it is then the step that shows which site asked.
+KeePassPasskey still asks for Windows Hello afterwards as usual. If unlocking KeePass already verifies you (for example with KeePassWinHello) and you find the second prompt redundant, turn on **Skip Windows Hello after unlocking KeePass** in the settings (see [Notifications & User Verification](#notifications--user-verification)).
 
 If KeePass already shows a dialog when the request arrives, for example its unlock prompt that you opened yourself, KeePassPasskey waits until that dialog closes and continues once the database is open.
 
@@ -213,7 +213,7 @@ Controls how KeePassPasskey confirms your identity before completing a passkey o
 
 Both are on by default. Turning both off for an operation lets it complete silently, without asking you at all; a warning icon appears beside the switches while that is the case.
 
-Right after KeePass was unlocked for the same request, the Windows Hello step is skipped while the confirmation prompt is on, since unlocking already verified you. See [When KeePass is locked](#when-keepass-is-locked).
+**Skip Windows Hello after unlocking KeePass** (off by default): when KeePass was locked and you just unlocked it for the same request, the Windows Hello step is skipped, since unlocking already verified you. It only applies while the confirmation prompt is on; with Windows Hello as the only verification it is kept, since it is then the step that shows which site asked. See [When KeePass is locked](#when-keepass-is-locked).
 
 The **Approval timeout** controls how long the confirmation prompt stays open before the operation is cancelled (default: 60 seconds). It only applies when the confirmation prompt is on.
 
