@@ -84,6 +84,8 @@ internal sealed class PipeServer : IDisposable
 				dummy.Connect(100);
 		}
 		catch { }
+		// The listener closes the pipe; waiting for it means the name is free once Stop returns.
+		_listenThread?.Join(1000);
 	}
 
 	public void Dispose() => Stop();
