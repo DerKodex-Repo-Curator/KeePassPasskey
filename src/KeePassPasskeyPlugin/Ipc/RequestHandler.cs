@@ -204,7 +204,7 @@ internal sealed class RequestHandler
 			return new MakeCredentialResponse { ErrorCode = PipeErrorCode.UnsupportedAlgorithm, ErrorMessage = "No supported algorithm in pubKeyCredParams" };
 
 		// Generate key pair and COSE key
-		var (pem, pubComponents) = PasskeyKeyHelper.GenerateKeyPair(chosenAlg.Value);
+		var (privateKey, pubComponents) = PasskeyKeyHelper.GenerateKeyPair(chosenAlg.Value);
 		var coseKeyBytes = PasskeyKeyHelper.BuildCoseKey(chosenAlg.Value, pubComponents);
 
 		// Generate 32-byte random credential ID
@@ -221,7 +221,7 @@ internal sealed class RequestHandler
 		var credential = new PasskeyCredential
 		{
 			CredentialId = credentialId,
-			PrivateKeyPem = pem,
+			PrivateKey = privateKey,
 			RelyingParty = req.RpId,
 			RpName = req.RpName,
 			UserHandle = req.UserId ?? "",
@@ -277,7 +277,7 @@ internal sealed class RequestHandler
 		Array.Copy(clientDataHashBytes, 0, dataToSign, authData.Length, clientDataHashBytes.Length);
 
 		// Sign with private key
-		var signature = PasskeyKeyHelper.Sign(credential.PrivateKeyPem, dataToSign);
+		var signature = PasskeyKeyHelper.Sign(credential.PrivateKey, dataToSign);
 
 		return new GetAssertionResponse
 		{

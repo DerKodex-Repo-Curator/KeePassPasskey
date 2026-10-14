@@ -20,4 +20,15 @@
 		<ProjectReference Include="..\KeePassPasskeyPlugin\KeePassPasskeyPlugin.csproj" />
 	</ItemGroup>
 
+	<!-- The same KeePass the plugin compiles against, copied next to the tests since KeePassLib types run here. -->
+	<ItemGroup Condition="Exists('..\..\build\KeePass.exe')">
+		<Reference Include="KeePass">
+			<HintPath>..\..\build\KeePass.exe</HintPath>
+			<Private>True</Private>
+		</Reference>
+	</ItemGroup>
+	<ItemGroup Condition="!Exists('..\..\build\KeePass.exe')">
+		<PackageReference Include="KeePass" Version="2.54.0.23169" />
+	</ItemGroup>
+
 </Project>

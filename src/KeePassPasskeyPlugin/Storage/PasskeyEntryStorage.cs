@@ -216,10 +216,10 @@ internal sealed class PasskeyEntryStorage
 
 	// Sets the KPEX_PASSKEY_* fields (and BE/BS flags) on an entry. Shared by new-entry
 	// creation and save-to-existing-entry so both write identical passkey material.
-	private static void ApplyPasskeyFields(PwEntry entry, PasskeyCredential credential)
+	internal static void ApplyPasskeyFields(PwEntry entry, PasskeyCredential credential)
 	{
 		entry.Strings.Set(FieldCredentialId, new ProtectedString(true, credential.CredentialId));
-		entry.Strings.Set(FieldPrivateKey, new ProtectedString(true, credential.PrivateKeyPem));
+		entry.Strings.Set(FieldPrivateKey, credential.PrivateKey?.WithProtection(true) ?? ProtectedString.EmptyEx);
 		entry.Strings.Set(FieldRelyingParty, new ProtectedString(false, credential.RelyingParty));
 		entry.Strings.Set(FieldUserHandle, new ProtectedString(true, credential.UserHandle ?? ""));
 		entry.Strings.Set(FieldUsername, new ProtectedString(false, credential.Username ?? ""));
@@ -575,22 +575,10 @@ internal sealed class PasskeyEntryStorage
 		return defaultValue;
 	}
 
-	internal PasskeyCredential ExtractCredential(PwEntry entry, PwDatabase db)
+	internal static PasskeyCredential ExtractCredential(PwEntry entry, PwDatabase db)
 	{
 		var credential = ExtractCredentialMetadata(entry, db);
-
-		var pem = entry.Strings.ReadSafe(FieldPrivateKey);
-		credential.PrivateKeyPem = pem;
-
-		if (!string.IsNullOrEmpty(pem))
-		{
-			try { credential.Algorithm = PasskeyKeyHelper.DetectAlgorithm(pem); }
-			catch (CryptographicException ex)
-			{
-				Log.Warn($"Failed to detect passkey algorithm for entry '{credential.Title}': {ex.Message}");
-			}
-		}
-
+		credential.PrivateKey = entry.Strings.Get(FieldPrivateKey);
 		return credential;
 	}
 
