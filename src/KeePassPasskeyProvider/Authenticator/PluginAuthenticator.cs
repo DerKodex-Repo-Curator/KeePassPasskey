@@ -414,7 +414,7 @@ public sealed class PluginAuthenticator : IPluginAuthenticator
 
 		if (ping.Status == PingStatus.NoDatabase)
 		{
-			int hrUnlock = UnlockDatabase(cancellation, out bool unlocked);
+			int hrUnlock = UnlockDatabase(operation, cancellation, out bool unlocked);
 			if (hrUnlock < HResults.S_OK) return hrUnlock;
 			if (unlocked)
 			{
@@ -439,13 +439,14 @@ public sealed class PluginAuthenticator : IPluginAuthenticator
 	/// Stops waiting as soon as the operation is cancelled (browser cancel or timeout) and returns
 	/// NTE_USER_CANCELLED, so a late unlock does not continue a finished ceremony; the prompt itself
 	/// stays with KeePass. Otherwise S_OK, with <paramref name="unlocked"/> false when the database stays
-	/// locked, including with an older plugin that does not know the request.
+	/// locked, including with an older plugin that does not know the request. The wait on a busy KeePass
+	/// is announced once with a short toast, since nothing else tells the user why the ceremony does not continue.
 	/// </summary>
-	private int UnlockDatabase(CancellationToken cancellation, out bool unlocked)
+	private int UnlockDatabase(string operation, CancellationToken cancellation, out bool unlocked)
 	{
 		unlocked = false;
 		Log.Info("database locked, asking KeePass to unlock");
-		bool loggedBusy = false;
+		bool waitedOnBusy = false;
 		while (true)
 		{
 			var request = Task.Run(() => _pipeClient.UnlockDatabase());
@@ -455,8 +456,7 @@ public sealed class PluginAuthenticator : IPluginAuthenticator
 			}
 			catch (OperationCanceledException)
 			{
-				Log.Info("cancelled while waiting for the unlock");
-				return HResults.NTE_USER_CANCELLED;
+				break;
 			}
 
 			var response = request.Result;
@@ -468,10 +468,11 @@ public sealed class PluginAuthenticator : IPluginAuthenticator
 				break;
 			}
 
-			if (!loggedBusy)
+			if (!waitedOnBusy)
 			{
 				Log.Info("KeePass is busy with a dialog, waiting for it to close");
-				loggedBusy = true;
+				Notifier.ShowWaitingForKeePass(operation);
+				waitedOnBusy = true;
 			}
 			if (cancellation.WaitHandle.WaitOne(BusyRetryIntervalMs))
 				break;

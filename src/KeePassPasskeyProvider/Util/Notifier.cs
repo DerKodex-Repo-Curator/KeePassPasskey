@@ -23,6 +23,11 @@ internal static class Notifier
 	public static void ShowVersionMismatch(string operation, string? appVersion, string? pluginVersion) =>
 		ShowError($"{operation} failed", VersionMismatchBody(appVersion, pluginVersion));
 
+	public static void ShowWaitingForKeePass(string operation) =>
+		Show($"{operation}: can't open the KeePass unlock prompt",
+			"KeePass is already showing a blocking dialog. Close it to continue.",
+			TimeSpan.FromSeconds(10));
+
 	internal static string VersionMismatchBody(string? appVersion, string? pluginVersion)
 	{
 		string app = PipeConstants.StripBuildMetadata(appVersion ?? "");
@@ -52,12 +57,17 @@ internal static class Notifier
 	private static void ShowError(string title, string body)
 	{
 		if (!Enabled) return;
+		Show(title, body, TimeSpan.FromSeconds(30));
+	}
+
+	private static void Show(string title, string body, TimeSpan expiration)
+	{
 		try
 		{
 			new ToastContentBuilder()
 				.AddText(title)
 				.AddText(body)
-				.Show(toast => toast.ExpirationTime = DateTimeOffset.Now.AddSeconds(30));
+				.Show(toast => toast.ExpirationTime = DateTimeOffset.Now.Add(expiration));
 		}
 		catch (Exception ex)
 		{
