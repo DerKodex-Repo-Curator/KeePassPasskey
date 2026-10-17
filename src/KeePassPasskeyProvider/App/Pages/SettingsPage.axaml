@@ -401,7 +401,7 @@
 																 IsExpanded="False">
 
 								<ui:FASettingsExpanderItem Content="Copyright"
-																				 Description="&#169; 2026 Uwe K&#246;gel" />
+																				 Description="&#169; 2026 Uwe K&#246;gel and contributors" />
 
 								<ui:FASettingsExpanderItem>
 										<ui:FASettingsExpanderItem.Content>
@@ -462,6 +462,17 @@
 												<Button Command="{Binding OpenUrlCommand}"
 																CommandParameter="https://github.com/yusei36/KeePassPasskey"
 																ToolTip.Tip="Open source code on GitHub">
+														<ui:FASymbolIcon Symbol="Globe" FontSize="14" />
+												</Button>
+										</ui:FASettingsExpanderItem.Footer>
+								</ui:FASettingsExpanderItem>
+
+								<ui:FASettingsExpanderItem Content="Contributors"
+																				 Description="github.com/yusei36/KeePassPasskey/graphs/contributors">
+										<ui:FASettingsExpanderItem.Footer>
+												<Button Command="{Binding OpenUrlCommand}"
+																CommandParameter="https://github.com/yusei36/KeePassPasskey/graphs/contributors"
+																ToolTip.Tip="Open contributors on GitHub">
 														<ui:FASymbolIcon Symbol="Globe" FontSize="14" />
 												</Button>
 										</ui:FASettingsExpanderItem.Footer>
