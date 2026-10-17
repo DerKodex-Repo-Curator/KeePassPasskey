@@ -309,9 +309,9 @@ internal sealed class RequestHandler
 		{
 			var mw = _host.MainWindow;
 			if (mw.InvokeRequired)
-				mw.Invoke(new MethodInvoker(() => busy = !TryPromptUnlock(mw)));
+				mw.Invoke(new MethodInvoker(() => busy = !TryPromptUnlock(mw, req.BringToFront)));
 			else
-				busy = !TryPromptUnlock(mw);
+				busy = !TryPromptUnlock(mw, req.BringToFront);
 		}
 		bool unlocked = IsDatabaseOpen();
 		return new UnlockDatabaseResponse { Unlocked = unlocked, Busy = busy && !unlocked };
@@ -322,12 +322,16 @@ internal sealed class RequestHandler
 	/// takes: show the key prompt for the active locked document. Returns once the prompt closes.
 	/// False when KeePass shows a dialog, so the caller can ask again once it has closed.
 	/// </summary>
-	private static bool TryPromptUnlock(MainForm mw)
+	private static bool TryPromptUnlock(MainForm mw, bool bringToFront)
 	{
 		// A dialog is already open, possibly the key prompt itself; a second one on top would only confuse.
 		if (mw.UIIsInteractionBlocked() || GlobalWindowManager.WindowCount > 0)
 		{
-			Log.Debug("KeePass is busy with a dialog, not prompting to unlock");
+			if (bringToFront)
+			{
+				Log.Info("KeePass is busy with a dialog, bringing it to the front");
+				KeePassForeground.BringToFront(mw, GlobalWindowManager.TopWindow);
+			}
 			return false;
 		}
 

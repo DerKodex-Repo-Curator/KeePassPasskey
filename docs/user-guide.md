@@ -139,7 +139,7 @@ If a passkey is requested while your KeePass database is locked, KeePass comes t
 
 KeePassPasskey still asks for Windows Hello afterwards as usual. If unlocking KeePass already verifies you (for example with KeePassWinHello) and you find the second prompt redundant, turn on **Skip Windows Hello after unlocking KeePass** in the settings (see [Notifications & User Verification](#notifications--user-verification)).
 
-If KeePass already shows a dialog when the request arrives, for example its unlock prompt that you opened yourself, KeePassPasskey shows a short notification that it can't open the unlock prompt yet, and waits until that dialog closes. It continues once the database is open.
+If KeePass already shows a dialog when the request arrives, for example its unlock prompt that you opened yourself, KeePass comes to the front with that dialog instead of opening a second prompt. KeePassPasskey waits until the dialog closes and continues once the database is open.
 
 If you cancel the unlock, the operation fails with the usual "database is locked" notification. If the website or browser cancels the request while KeePass is still waiting to be unlocked, KeePassPasskey stops right away; unlocking afterwards only unlocks KeePass. KeePass itself must be running; KeePassPasskey does not start it.
 

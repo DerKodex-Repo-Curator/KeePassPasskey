@@ -414,7 +414,7 @@ public sealed class PluginAuthenticator : IPluginAuthenticator
 
 		if (ping.Status == PingStatus.NoDatabase)
 		{
-			int hrUnlock = UnlockDatabase(operation, cancellation, out bool unlocked);
+			int hrUnlock = UnlockDatabase(cancellation, out bool unlocked);
 			if (hrUnlock < HResults.S_OK) return hrUnlock;
 			if (unlocked)
 			{
@@ -439,24 +439,27 @@ public sealed class PluginAuthenticator : IPluginAuthenticator
 	/// Stops waiting as soon as the operation is cancelled (browser cancel or timeout) and returns
 	/// NTE_USER_CANCELLED, so a late unlock does not continue a finished ceremony; the prompt itself
 	/// stays with KeePass. Otherwise S_OK, with <paramref name="unlocked"/> false when the database stays
-	/// locked, including with an older plugin that does not know the request. The wait on a busy KeePass
-	/// is announced once with a short toast, since nothing else tells the user why the ceremony does not continue.
+	/// locked, including with an older plugin that does not know the request.
 	/// </summary>
-	private int UnlockDatabase(string operation, CancellationToken cancellation, out bool unlocked)
+	private int UnlockDatabase(CancellationToken cancellation, out bool unlocked)
 	{
 		unlocked = false;
 		Log.Info("database locked, asking KeePass to unlock");
-		bool waitedOnBusy = false;
+		bool loggedBusy = false;
+		bool bringToFront = true;
 		while (true)
 		{
-			var request = Task.Run(() => _pipeClient.UnlockDatabase());
+			bool first = bringToFront;
+			var request = Task.Run(() => _pipeClient.UnlockDatabase(first));
+			bringToFront = false;
 			try
 			{
 				request.Wait(cancellation);
 			}
 			catch (OperationCanceledException)
 			{
-				break;
+				Log.Info("cancelled while waiting for the unlock");
+				return HResults.NTE_USER_CANCELLED;
 			}
 
 			var response = request.Result;
@@ -468,11 +471,10 @@ public sealed class PluginAuthenticator : IPluginAuthenticator
 				break;
 			}
 
-			if (!waitedOnBusy)
+			if (!loggedBusy)
 			{
-				Log.Info("KeePass is busy with a dialog, waiting for it to close");
-				Notifier.ShowWaitingForKeePass(operation);
-				waitedOnBusy = true;
+				Log.Info("KeePass is busy with a dialog, brought to the front, waiting for it to close");
+				loggedBusy = true;
 			}
 			if (cancellation.WaitHandle.WaitOne(BusyRetryIntervalMs))
 				break;

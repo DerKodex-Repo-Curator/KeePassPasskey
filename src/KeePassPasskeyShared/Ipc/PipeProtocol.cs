@@ -139,6 +139,9 @@ public sealed class SaveSettingsRequest : PipeRequestBase
 public sealed class UnlockDatabaseRequest : PipeRequestBase
 {
 	public override string Type => PipeMessageTypes.UnlockDatabase;
+
+	[JsonProperty("bringToFront")]
+	public bool BringToFront { get; set; }
 }
 
 [JsonConverter(typeof(StringEnumConverter), typeof(SnakeCaseNamingStrategy))]

@@ -16,6 +16,16 @@ public class UnlockDatabaseProtocolTests
 		Assert.IsType<UnlockDatabaseRequest>(req);
 	}
 
+	[Theory]
+	[InlineData(true)]
+	[InlineData(false)]
+	public void BringToFront_RoundTrips(bool bringToFront)
+	{
+		var json = JsonConvert.SerializeObject(new UnlockDatabaseRequest { ProtocolVersion = PipeConstants.ProtocolVersion, BringToFront = bringToFront });
+		var req = Assert.IsType<UnlockDatabaseRequest>(JsonConvert.DeserializeObject<PipeRequestBase>(json));
+		Assert.Equal(bringToFront, req.BringToFront);
+	}
+
 	[Fact]
 	public void Busy_RoundTrips()
 	{

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 using System;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 using KeePass.Forms;
 using KeePassPasskeyShared;
 
@@ -18,9 +19,9 @@ internal static class KeePassForeground
 {
 	/// <summary>
 	/// Shows the main window in front, restoring it from the tray or the taskbar, and returns the
-	/// window that was in front before, or zero.
+	/// window that was in front before, or zero. An open <paramref name="dialog"/> gets the focus.
 	/// </summary>
-	internal static IntPtr BringToFront(MainForm mw)
+	internal static IntPtr BringToFront(MainForm mw, Form dialog = null)
 	{
 		IntPtr previous = GetForegroundWindow();
 		uint foreThread = previous == IntPtr.Zero ? 0 : GetWindowThreadProcessId(previous, IntPtr.Zero);
@@ -33,13 +34,16 @@ internal static class KeePassForeground
 		{
 			mw.EnsureVisibleForegroundWindow(true, true);
 			SetForegroundWindow(mw.Handle);
+			if (dialog != null && dialog.IsHandleCreated && !dialog.IsDisposed)
+				SetForegroundWindow(dialog.Handle);
 		}
 		finally
 		{
 			mw.UIBlockAutoUnlock(false);
 			if (attached) AttachThreadInput(foreThread, ownThread, false);
 		}
-		Log.Info($"attached={attached} inFront={GetForegroundWindow() == mw.Handle}");
+		IntPtr target = dialog != null && dialog.IsHandleCreated ? dialog.Handle : mw.Handle;
+		Log.Info($"attached={attached} inFront={GetForegroundWindow() == target} dialog={dialog?.GetType().Name ?? "(none)"}");
 		return previous;
 	}
 
